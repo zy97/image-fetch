@@ -3,8 +3,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use actix_web::{HttpRequest, HttpResponse, Responder, get, web};
-use base64::{Engine, decode, engine::general_purpose};
+use actix_web::{HttpResponse, Responder, get, web};
+use base64::{Engine, engine::general_purpose};
 use moka::future::Cache;
 use scraper::{Html, Selector};
 
@@ -78,7 +78,7 @@ async fn caoliu_image(
     let video_url = cache.get(&key).await;
     match video_url {
         Some(cached_image) => {
-            match decode(cached_image) {
+            match general_purpose::STANDARD.decode(cached_image) {
                 Ok(image_bytes) => {
                     HttpResponse::Ok()
                         .content_type("image/png") // 或者 image/jpeg 等
