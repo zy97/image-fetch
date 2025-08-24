@@ -45,7 +45,7 @@ async fn hl(
                                 // 提取第一个分组中的值
                                 if let Some(val) = captures.get(1) {
                                     image_urls.push(format!(
-                                        "{}/images?image={}",
+                                        "{}/images/?image={}",
                                         host,
                                         val.as_str()
                                     ));
