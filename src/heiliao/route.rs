@@ -1,11 +1,14 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{HttpResponse, Responder, get, web};
 use moka::future::Cache;
 use regex::Regex;
 use scraper::{Html, Selector};
 
-use crate::Response;
+use crate::{Response, read_json};
 
 #[get("/hl/{id}")]
 async fn hl(
@@ -31,7 +34,7 @@ async fn hl(
                         let html = resp.text().await.unwrap();
                         let document = Html::parse_document(&html);
                         let selector = Selector::parse(".client-only-placeholder img").unwrap();
-
+                        let host = read_json().unwrap();
                         let mut image_urls = vec![];
                         for image in document.select(&selector) {
                             let src = image.attr("onload").unwrap();
@@ -42,7 +45,8 @@ async fn hl(
                                 // 提取第一个分组中的值
                                 if let Some(val) = captures.get(1) {
                                     image_urls.push(format!(
-                                        "http://10.144.144.100:9090?image={}",
+                                        "{}/images/image={}",
+                                        host,
                                         val.as_str()
                                     ));
                                     println!("匹配的值: {}", val.as_str());

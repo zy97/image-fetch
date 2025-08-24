@@ -1,5 +1,7 @@
 use std::{
     collections::HashMap,
+    fs::File,
+    io::BufReader,
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -14,6 +16,7 @@ use actix_web::{App, HttpServer, web};
 use config::APP_CONFIG;
 use moka::future::Cache;
 use serde::Serialize;
+use serde_json::Value;
 const ONE_WEEK_IN_SECONDS: u64 = 60 * 60 * 24 * 7;
 #[derive(Debug, Serialize)]
 pub struct Response {
@@ -50,4 +53,23 @@ async fn main() -> std::io::Result<()> {
     .bind(("0.0.0.0", 17619))?
     .run()
     .await
+}
+
+pub fn read_json() -> Option<String> {
+    // 读取地址/var/lib/casaos/1/link.json的的文件 获取这个数组里name值等于external的hostname的值
+    let file_path = "/var/lib/casaos/1/link.json";
+    let file = File::open(file_path).expect("Unable to open file");
+    let reader = BufReader::new(file);
+    let json: Value = serde_json::from_reader(reader).expect("Unable to parse JSON");
+    json.as_array()?
+        .iter()
+        .filter_map(|item| item.as_object())
+        .find(|obj| {
+            obj.get("name")
+                .and_then(Value::as_str)
+                .map_or(false, |name| name == "external")
+        })
+        .and_then(|obj| obj.get("hostname"))
+        .and_then(Value::as_str)
+        .map(|s| s.to_string())
 }

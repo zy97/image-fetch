@@ -5,10 +5,9 @@ use std::{
 
 use actix_web::{HttpResponse, Responder, get, web};
 use moka::future::Cache;
-use regex::Regex;
 use scraper::{Html, Selector};
 
-use crate::Response;
+use crate::{Response, read_json};
 
 #[get("/mrds/{id}")]
 async fn mrds(
@@ -34,11 +33,11 @@ async fn mrds(
                         let html = resp.text().await.unwrap();
                         let document = Html::parse_document(&html);
                         let selector = Selector::parse(".post-content img").unwrap();
-
+                        let host = read_json().unwrap();
                         let mut image_urls = vec![];
                         for image in document.select(&selector) {
                             let src = image.attr("z-image-loader-url").unwrap();
-                            image_urls.push(format!("http://10.144.144.100:9090?image={}", src));
+                            image_urls.push(format!("{}/images/image={}", host, src));
                             println!("匹配的值: {}", src);
                         }
 
