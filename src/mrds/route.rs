@@ -37,7 +37,7 @@ async fn mrds(
                         let mut image_urls = vec![];
                         for image in document.select(&selector) {
                             let src = image.attr("z-image-loader-url").unwrap();
-                            image_urls.push(format!("{}/images/image={}", host, src));
+                            image_urls.push(format!("{}/images?image={}", host, src));
                             println!("匹配的值: {}", src);
                         }
 
