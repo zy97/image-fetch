@@ -38,6 +38,12 @@ async fn caoliu(
                     if resp.status().is_success() {
                         let html = resp.text().await.unwrap();
                         let document = Html::parse_document(&html);
+                        let title = document
+                            .select(&Selector::parse("title").unwrap())
+                            .next()
+                            .unwrap()
+                            .text()
+                            .collect::<String>();
                         let selector = Selector::parse("#conttpc img").unwrap();
 
                         let mut image_urls = vec![];
@@ -50,6 +56,7 @@ async fn caoliu(
                         }
 
                         let response = Response {
+                            title,
                             images: image_urls,
                             videos: vec![],
                         };
