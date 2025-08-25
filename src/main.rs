@@ -77,5 +77,5 @@ pub fn read_external() -> Option<String> {
     read_json("external")
 }
 pub fn read_player() -> Option<String> {
-    read_json("player")
+    read_json("dplayer")
 }
