@@ -8,7 +8,7 @@ use moka::future::Cache;
 use regex::Regex;
 use scraper::{Html, Selector};
 
-use crate::{Response, read_external, read_json, read_player};
+use crate::{Response, read_external, read_player};
 
 #[get("/hl/{id}")]
 async fn hl(

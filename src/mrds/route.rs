@@ -7,7 +7,7 @@ use actix_web::{HttpResponse, Responder, get, web};
 use moka::future::Cache;
 use scraper::{Html, Selector};
 
-use crate::{Response, read_external, read_json, read_player};
+use crate::{Response, read_external, read_player};
 
 #[get("/mrds/{id}")]
 async fn mrds(
