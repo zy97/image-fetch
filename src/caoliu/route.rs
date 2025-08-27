@@ -6,9 +6,9 @@ use std::{
 use actix_web::{HttpResponse, Responder, get, web};
 use base64::{Engine, engine::general_purpose};
 use moka::future::Cache;
-use scraper::{Html, Selector};
+use scraper::{Html, Selector, selector};
 
-use crate::Response;
+use crate::{Response, read_player};
 
 #[get("/caoliu/{id:.*}")]
 async fn caoliu(
@@ -50,15 +50,19 @@ async fn caoliu(
                         for image in document.select(&selector) {
                             let src = image.attr("ess-data");
                             match src {
-                                Some(url) => image_urls.push(url.to_string()),
+                                Some(url) => {
+                                    image_urls.push(url.to_string());
+                                    println!("匹配的值: {}", url);
+                                }
                                 None => println!("未找到匹配的值"),
                             }
                         }
-
+                        let video_url = read_player().unwrap();
+                        let video_rul = format!("{}/cl/{}", video_url, id);
                         let response = Response {
                             title,
                             images: image_urls,
-                            videos: vec![],
+                            videos: vec![video_rul],
                         };
                         let response = serde_json::to_string(&response).unwrap();
                         cache.insert(key, response.clone()).await;
