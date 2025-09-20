@@ -6,6 +6,7 @@ description = "获取黑料,每日大赛,草榴的图片和视频地址"
 
 [dependencies]
 actix-web = "4"
+actix-cors = "0.7.1"
 reqwest = "0.12"
 config = { version = "0.15.14", features = ["toml"] }
 serde = { version = "1.0.219", features = ["derive"] }

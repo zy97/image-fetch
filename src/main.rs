@@ -8,6 +8,7 @@ use std::{
 mod caoliu;
 mod heiliao;
 mod mrds;
+use actix_cors::Cors;
 use caoliu::caoliu as cl_route;
 use heiliao::hl;
 use mrds::mrds as mrds_route;
@@ -41,8 +42,10 @@ async fn main() -> std::io::Result<()> {
     let cache: Cache<String, String> = Cache::builder()
         .time_to_live(Duration::from_secs(ONE_WEEK_IN_SECONDS))
         .build();
+
     HttpServer::new(move || {
         App::new()
+            .wrap(Cors::permissive())
             .app_data(web::Data::new(config.clone()))
             .app_data(web::Data::new(cache.clone()))
             .service(hl)
