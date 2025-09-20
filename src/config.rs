@@ -18,7 +18,6 @@ pub struct InnerConfig {
     pub heiliao: String,
     pub meiridasai: String,
     pub caoliu: String,
-    pub url: String,
 }
 
 pub fn load_config() -> Result<AppConfig, ConfigError> {

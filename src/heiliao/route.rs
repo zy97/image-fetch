@@ -8,7 +8,7 @@ use moka::future::Cache;
 use regex::Regex;
 use scraper::{Html, Selector};
 
-use crate::{Response, read_json};
+use crate::{Response, read_external, read_player};
 
 #[get("/hl/{id}")]
 async fn hl(
@@ -33,8 +33,14 @@ async fn hl(
                     if resp.status().is_success() {
                         let html = resp.text().await.unwrap();
                         let document = Html::parse_document(&html);
+                        let title = document
+                            .select(&Selector::parse("title").unwrap())
+                            .next()
+                            .unwrap()
+                            .text()
+                            .collect::<String>();
                         let selector = Selector::parse(".client-only-placeholder img").unwrap();
-                        let host = read_json().unwrap();
+                        let host = read_external().unwrap();
                         let mut image_urls = vec![];
                         for image in document.select(&selector) {
                             let src = image.attr("onload").unwrap();
@@ -56,9 +62,10 @@ async fn hl(
                             }
                         }
 
-                        let video_url = config.get("url").unwrap();
+                        let video_url = read_player().unwrap();
                         let video_rul = format!("{}/hl/{}", video_url, id);
                         let response = Response {
+                            title,
                             images: image_urls,
                             videos: vec![video_rul],
                         };

@@ -21,6 +21,7 @@ use serde_json::Value;
 const ONE_WEEK_IN_SECONDS: u64 = 60 * 60 * 24 * 7;
 #[derive(Debug, Serialize)]
 pub struct Response {
+    pub title: String,
     pub images: Vec<String>,
     pub videos: Vec<String>,
 }
@@ -37,7 +38,6 @@ async fn main() -> std::io::Result<()> {
             APP_CONFIG.config.meiridasai.clone(),
         );
         config.insert("caoliu".to_string(), APP_CONFIG.config.caoliu.clone());
-        config.insert("url".to_string(), APP_CONFIG.config.url.clone());
     }
     let cache: Cache<String, String> = Cache::builder()
         .time_to_live(Duration::from_secs(ONE_WEEK_IN_SECONDS))
@@ -58,7 +58,7 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-pub fn read_json() -> Option<String> {
+fn read_json(key_name: &str) -> Option<String> {
     // 读取地址/var/lib/casaos/1/link.json的的文件 获取这个数组里name值等于external的hostname的值
     let file_path = "/var/lib/casaos/1/link.json";
     let file = File::open(file_path).expect("Unable to open file");
@@ -70,9 +70,15 @@ pub fn read_json() -> Option<String> {
         .find(|obj| {
             obj.get("name")
                 .and_then(Value::as_str)
-                .map_or(false, |name| name == "external")
+                .map_or(false, |name| name == key_name)
         })
         .and_then(|obj| obj.get("hostname"))
         .and_then(Value::as_str)
         .map(|s| s.to_string())
+}
+pub fn read_external() -> Option<String> {
+    read_json("external")
+}
+pub fn read_player() -> Option<String> {
+    read_json("dplayer")
 }
