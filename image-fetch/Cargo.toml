@@ -1,0 +1,19 @@
+[package]
+name = "image-fetch"
+version = "0.1.0"
+edition = "2024"
+description = "获取黑料,每日大赛,草榴的图片和视频地址"
+repository = "https://github.com/zy97/image-fetch"
+
+[dependencies]
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+scraper = "0.24.0"
+serde_json = "1.0"
+regex = "1"
+base64 = "0.22.1"
+bb8-redis = "0.24"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tokio = { version = "1.47.1", features = ["full"] }
+axum = { version = "0.8.6", features = ["macros"] }
