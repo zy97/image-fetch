@@ -2,7 +2,7 @@
 members = ["image-fetch"]
 default-members = ["image-fetch"]
 resolver = "1"
-package.version = "0.2.0"
+package.version = "0.3.0"
 
 # The profile that 'dist' will build with
 [profile.dist]
