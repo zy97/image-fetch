@@ -7,6 +7,7 @@ use axum::{
 use bb8_redis::redis::AsyncTypedCommands;
 use reqwest::StatusCode;
 use scraper::{Html, Selector};
+use serde_json::Value;
 use tracing::info;
 
 #[axum::debug_handler]
@@ -77,13 +78,59 @@ pub async fn mrds(
                                                 }
                                             }
 
-                                            let video_url = "https://player.bomky.dpdns.org";
-                                            let video_rul = format!("{}/hl/{}", video_url, id);
-                                            let response = Response {
+                                            let selector = Selector::parse(".dplayer").unwrap();
+                                            let video_selectors = document.select(&selector);
+                                            let mut video_url = String::new();
+                                            for video in video_selectors {
+                                                if video_url.is_empty() {
+                                                    video_url +=
+                                                        "https://player.bomky.dpdns.org?items="
+                                                }
+                                                let video_config =
+                                                    video.value().attr("data-config");
+                                                match video_config {
+                                                    Some(video_config) => {
+                                                        //序列化
+                                                        let video_config: Value =
+                                                            serde_json::from_str(video_config)
+                                                                .unwrap();
+                                                        let url =
+                                                            video_config["video"]["url"].as_str();
+                                                        match url {
+                                                            Some(url) => {
+                                                                video_url += &format!("{url}%&%&")
+                                                            }
+                                                            None => {
+                                                                return Err((
+                                                                    StatusCode::BAD_REQUEST,
+                                                                    String::from(
+                                                                        "请求每日大赛视频规则发生了变化",
+                                                                    ),
+                                                                ));
+                                                            }
+                                                        }
+                                                    }
+                                                    None => {
+                                                        return Err((
+                                                            StatusCode::BAD_REQUEST,
+                                                            String::from(
+                                                                "请求每日大赛视频规则发生了变化",
+                                                            ),
+                                                        ));
+                                                    }
+                                                }
+                                            }
+                                            video_url =
+                                                video_url.trim_end_matches("%&%&").to_string();
+                                            let mut response = Response {
                                                 title,
                                                 images: image_urls,
-                                                videos: vec![video_rul],
+                                                videos: vec![],
                                             };
+                                            if !video_url.is_empty() {
+                                                response.videos.push(video_url);
+                                            }
+
                                             response
                                         };
 

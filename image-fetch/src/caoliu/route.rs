@@ -9,6 +9,7 @@ use bb8_redis::redis::AsyncCommands;
 use reqwest::{StatusCode, header::CONTENT_TYPE};
 use scraper::{Html, Selector};
 use serde::Deserialize;
+use serde_json::Value;
 
 use crate::{ChiGuaServer, ConnectionPool, Response, internal_error};
 
@@ -71,13 +72,39 @@ pub async fn caoliu(
                                                     }
                                                 }
                                             }
-                                            let video_url = "https://player.bomky.dpdns.org";
-                                            let video_rul = format!("{}/cl/{}", video_url, id);
-                                            let response = Response {
+                                            let selector =
+                                                Selector::parse("#conttpc video").unwrap();
+                                            let video_selectors = document.select(&selector);
+                                            let mut video_url = String::new();
+                                            for video in video_selectors {
+                                                if video_url.is_empty() {
+                                                    video_url +=
+                                                        "https://player.bomky.dpdns.org?items="
+                                                }
+                                                let video_config = video.value().attr("src");
+                                                match video_config {
+                                                    Some(url) => video_url += &format!("{url}%&%&"),
+                                                    None => {
+                                                        return Err((
+                                                            StatusCode::BAD_REQUEST,
+                                                            String::from(
+                                                                "请求草榴视频规则发生了变化",
+                                                            ),
+                                                        ));
+                                                    }
+                                                }
+                                            }
+                                            video_url =
+                                                video_url.trim_end_matches("%&%&").to_string();
+                                            let mut response = Response {
                                                 title,
                                                 images: image_urls,
-                                                videos: vec![video_rul],
+                                                videos: vec![],
                                             };
+                                            if !video_url.is_empty() {
+                                                response.videos.push(video_url);
+                                            }
+
                                             response
                                         };
 
