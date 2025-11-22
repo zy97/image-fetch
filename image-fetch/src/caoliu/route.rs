@@ -26,7 +26,7 @@ pub async fn caoliu(
             Ok((StatusCode::OK, Json(json)))
         }
         None => {
-            let response = reqwest::get("http://127.0.0.1:3000/chigua/caoliu").await;
+            let response = reqwest::get("http://127.0.0.1:18181/chigua/caoliu").await;
             match response {
                 Ok(response) => {
                     let response = response.json::<ChiGuaServer>().await;

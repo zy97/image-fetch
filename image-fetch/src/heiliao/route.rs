@@ -24,7 +24,7 @@ pub async fn hl(
             Ok((StatusCode::OK, Json(json)))
         }
         None => {
-            let response = reqwest::get("http://127.0.0.1:3000/chigua/heiliao").await;
+            let response = reqwest::get("http://127.0.0.1:18181/chigua/heiliao").await;
             match response {
                 Ok(response) => {
                     let response = response.json::<ChiGuaServer>().await;

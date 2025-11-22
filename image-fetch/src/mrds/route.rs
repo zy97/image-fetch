@@ -24,7 +24,7 @@ pub async fn mrds(
             Ok((StatusCode::OK, Json(json)))
         }
         None => {
-            let response = reqwest::get("http://127.0.0.1:3000/chigua/mrds").await;
+            let response = reqwest::get("http://127.0.0.1:18181/chigua/mrds").await;
 
             match response {
                 Ok(response) => {
